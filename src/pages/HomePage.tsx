@@ -38,11 +38,11 @@ export default function HomePage() {
             <div className="absolute inset-0 opacity-20" style={{ backgroundImage: "radial-gradient(circle at 2px 2px, white 1px, transparent 0)", backgroundSize: "32px 32px" }} />
             <div className="relative">
               <h1 className="text-3xl md:text-5xl font-black text-white mb-3 leading-tight">
-                Play Free Games<br />
-                <span className="text-purple-300">No Blocks. No Downloads.</span>
+                Play Free Browser Games<br />
+                <span className="text-purple-300">Learn. Think. Play.</span>
               </h1>
               <p className="text-purple-200 text-lg mb-6 max-w-xl">
-                Hundreds of unblocked games — action, puzzle, racing, .io and more. Works anywhere, instant play.
+                Hundreds of free games that sharpen your mind — puzzle, strategy, action, classics and more. Instant play, no downloads.
               </p>
               <div className="flex flex-wrap gap-2">
                 {CATEGORIES.map(c => (
@@ -204,9 +204,9 @@ export default function HomePage() {
           </div>
           <p>© 2026 NovArcade. Free unblocked games.</p>
           <div className="flex gap-4">
-            <a href="#" className="hover:text-white transition-colors">Privacy</a>
-            <a href="#" className="hover:text-white transition-colors">Terms</a>
-            <a href="#" className="hover:text-white transition-colors">Contact</a>
+            <Link to="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
+            <Link to="/about" className="hover:text-white transition-colors">About</Link>
+            <a href="mailto:support@techcoresolutions.online" className="hover:text-white transition-colors">Contact</a>
           </div>
         </div>
       </footer>
