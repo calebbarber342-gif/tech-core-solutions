@@ -23,15 +23,42 @@ export default function ContactPage() {
     name: "", email: "", device: "", issue: "", details: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handle = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In production, wire this to EmailJS, Formspree, or your backend
-    setSubmitted(true);
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await fetch("https://formspree.io/f/xdeeanze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({
+          name:    form.name,
+          email:   form.email,
+          device:  form.device,
+          issue:   form.issue,
+          details: form.details || "No additional details provided.",
+        }),
+      });
+
+      if (res.ok) {
+        setSubmitted(true);
+      } else {
+        const data = await res.json();
+        setError(data?.errors?.[0]?.message || "Something went wrong. Please try again.");
+      }
+    } catch {
+      setError("Network error. Please check your connection and try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -135,11 +162,16 @@ export default function ContactPage() {
 
                   <button
                     type="submit"
-                    className="w-full flex items-center justify-center gap-2 py-3.5 bg-blue-500 hover:bg-blue-400 text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-500/20 hover:-translate-y-0.5"
+                    disabled={loading}
+                    className="w-full flex items-center justify-center gap-2 py-3.5 bg-blue-500 hover:bg-blue-400 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-500/20 hover:-translate-y-0.5"
                   >
                     <Send className="w-4 h-4" />
-                    Submit Repair Request
+                    {loading ? "Sending..." : "Submit Repair Request"}
                   </button>
+
+                  {error && (
+                    <p className="text-red-400 text-sm text-center">{error}</p>
+                  )}
 
                   <p className="text-gray-600 text-xs text-center">
                     No payment required now. We'll send a quote before any work begins.
