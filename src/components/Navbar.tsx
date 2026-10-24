@@ -1,71 +1,94 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Gamepad2, Search, Menu, X, Zap } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { Menu, X, Cpu } from "lucide-react";
+
+const links = [
+  { to: "/",             label: "Home"         },
+  { to: "/services",     label: "Services"     },
+  { to: "/how-it-works", label: "How It Works" },
+  { to: "/contact",      label: "Contact"      },
+];
 
 export default function Navbar() {
-  const [open, setOpen] = useState(false);
-  const [q, setQ]       = useState("");
-  const navigate        = useNavigate();
+  const [open, setOpen]       = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const location              = useLocation();
 
-  function handleSearch(e: React.FormEvent) {
-    e.preventDefault();
-    if (q.trim()) { navigate(`/?search=${encodeURIComponent(q.trim())}`); setOpen(false); }
-  }
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => setOpen(false), [location]);
 
   return (
-    <nav className="bg-[#0d0d14] border-b border-[#1e1e2e] sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 h-14 flex items-center gap-4">
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      scrolled ? "bg-gray-950/95 backdrop-blur-md shadow-lg shadow-black/20 border-b border-gray-800/50" : "bg-transparent"
+    }`}>
+      <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 shrink-0">
-          <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-pink-500 rounded-lg flex items-center justify-center">
-            <Gamepad2 className="w-5 h-5 text-white" />
+        <Link to="/" className="flex items-center gap-2 group">
+          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center shadow-lg shadow-blue-500/20">
+            <Cpu className="w-4 h-4 text-white" />
           </div>
-          <span className="font-black text-white text-lg tracking-tight">
-            Nov<span className="text-purple-400">Arcade</span>
+          <span className="font-bold text-white text-lg tracking-tight">
+            Tech<span className="text-blue-400">Core</span>
           </span>
         </Link>
 
-        {/* Search */}
-        <form onSubmit={handleSearch} className="flex-1 max-w-md hidden md:flex">
-          <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-            <input
-              value={q} onChange={e => setQ(e.target.value)}
-              placeholder="Search games..."
-              className="w-full bg-[#13131a] border border-[#1e1e2e] rounded-xl pl-9 pr-4 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-colors"
-            />
-          </div>
-        </form>
-
-        {/* Nav links */}
-        <div className="hidden md:flex items-center gap-5 ml-2 text-sm font-medium">
-          <Link to="/?filter=featured" className="text-gray-400 hover:text-white transition-colors flex items-center gap-1.5">
-            <Zap className="w-4 h-4 text-yellow-400" /> Featured
-          </Link>
-          {["action","puzzle","racing","io"].map(c => (
-            <Link key={c} to={`/?category=${c}`} className="text-gray-400 hover:text-white transition-colors capitalize">{c}</Link>
+        {/* Desktop nav */}
+        <div className="hidden md:flex items-center gap-1">
+          {links.map(link => (
+            <Link
+              key={link.to}
+              to={link.to}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                location.pathname === link.to
+                  ? "bg-blue-500/10 text-blue-400"
+                  : "text-gray-400 hover:text-white hover:bg-gray-800/50"
+              }`}
+            >
+              {link.label}
+            </Link>
           ))}
-          <Link to="/?category=classic" className="text-gray-400 hover:text-white transition-colors">Classic</Link>
+          <Link
+            to="/contact"
+            className="ml-4 px-5 py-2 bg-blue-500 hover:bg-blue-400 text-white text-sm font-semibold rounded-lg transition-colors shadow-lg shadow-blue-500/20"
+          >
+            Get a Quote
+          </Link>
         </div>
 
         {/* Mobile toggle */}
-        <button className="md:hidden ml-auto p-1.5 text-gray-400 hover:text-white" onClick={() => setOpen(!open)}>
+        <button
+          className="md:hidden p-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition-colors"
+          onClick={() => setOpen(!open)}
+        >
           {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
       </div>
 
       {/* Mobile menu */}
       {open && (
-        <div className="md:hidden bg-[#0d0d14] border-t border-[#1e1e2e] px-4 py-4 space-y-3">
-          <form onSubmit={handleSearch}>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-              <input value={q} onChange={e => setQ(e.target.value)} placeholder="Search games..." className="w-full bg-[#13131a] border border-[#1e1e2e] rounded-xl pl-9 pr-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-purple-500" />
-            </div>
-          </form>
-          {["action","puzzle","racing","sports","shooting","adventure","io","classic"].map(c => (
-            <Link key={c} to={`/?category=${c}`} onClick={() => setOpen(false)} className="block py-1.5 text-gray-400 hover:text-white capitalize text-sm">{c}</Link>
+        <div className="md:hidden bg-gray-950/98 backdrop-blur-md border-b border-gray-800 px-6 pb-6 pt-2">
+          {links.map(link => (
+            <Link
+              key={link.to}
+              to={link.to}
+              className={`block py-3 text-sm font-medium border-b border-gray-800/50 transition-colors ${
+                location.pathname === link.to ? "text-blue-400" : "text-gray-400 hover:text-white"
+              }`}
+            >
+              {link.label}
+            </Link>
           ))}
+          <Link
+            to="/contact"
+            className="block mt-4 text-center px-5 py-2.5 bg-blue-500 hover:bg-blue-400 text-white text-sm font-semibold rounded-lg transition-colors"
+          >
+            Get a Quote
+          </Link>
         </div>
       )}
     </nav>
